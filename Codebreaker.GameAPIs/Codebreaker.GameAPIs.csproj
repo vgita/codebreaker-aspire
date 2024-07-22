@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Codebreaker.GameAPIs.Models\Codebreaker.GameAPIs.Models.csproj" />
-    <ProjectReference Include="..\Codebreaker.GameAPIs.Analyzers\Codebreaker.Analyzers.csproj" />
+    <ProjectReference Include="..\Codebreaker.ServiceDefaults\Codebreaker.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
