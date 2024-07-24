@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codebreaker.AppHost", "Code
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codebreaker.ServiceDefaults", "Codebreaker.ServiceDefaults\Codebreaker.ServiceDefaults.csproj", "{376D9FEA-D7B8-4DD4-A7D4-1FF4508167A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codebreaker.Data.SqlServer", "Codebreaker.Data.SqlServer\Codebreaker.Data.SqlServer.csproj", "{795F90E6-FFBF-4EA2-B307-503331EEEF30}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{376D9FEA-D7B8-4DD4-A7D4-1FF4508167A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{376D9FEA-D7B8-4DD4-A7D4-1FF4508167A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{376D9FEA-D7B8-4DD4-A7D4-1FF4508167A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{795F90E6-FFBF-4EA2-B307-503331EEEF30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{795F90E6-FFBF-4EA2-B307-503331EEEF30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{795F90E6-FFBF-4EA2-B307-503331EEEF30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{795F90E6-FFBF-4EA2-B307-503331EEEF30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
