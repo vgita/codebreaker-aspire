@@ -15,31 +15,81 @@ public class GamesSqlServerContext(DbContextOptions<GamesSqlServerContext> optio
 
     public Task AddGameAsync(Game game, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Games.Add(game);
+        return SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<bool> DeleteGameAsync(Guid gameId, CancellationToken cancellationToken = default)
+    {
+        int affected = await Games
+            .Where(g => g.Id == gameId)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        return affected == 1;
     }
 
     public Task AddMoveAsync(Game game, Move move, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Moves.Add(move);
+        Games.Update(game);
+        return SaveChangesAsync(cancellationToken);
     }
 
-    public Task<bool> DeleteGameAsync(Guid gameId, CancellationToken cancellationToken = default)
+    public async Task<Game?> GetGameAsync(Guid gameId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        Game? game = await Games.Include("Moves")
+        .TagWith(nameof(GetGameAsync))
+        .SingleOrDefaultAsync(g => g.Id == gameId, cancellationToken);
+
+        return game;
     }
 
-    public Task<Game?> GetGameAsync(Guid gameId, CancellationToken cancellationToken = default)
+    private const int MaxGamesReturned = 500;
+
+    public async Task<IEnumerable<Game>> GetGamesAsync(GamesQuery gamesQuery, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        IQueryable<Game> query = Games
+           .TagWith(nameof(GetGamesAsync))
+           .Include(g => g.Moves);
+
+        // Apply Game filters if provided.
+        if (gamesQuery.Date.HasValue)
+        {
+            DateTime begin = gamesQuery.Date.Value.ToDateTime(TimeOnly.MinValue);
+            DateTime end = begin.AddDays(1);
+            query = query.Where(g => g.StartTime < end && g.StartTime > begin);
+        }
+        if (gamesQuery.PlayerName != null)
+        {
+            query = query.Where(g => g.PlayerName == gamesQuery.PlayerName);
+        }
+        if (gamesQuery.GameType != null)
+        {
+            query = query.Where(g => g.GameType == gamesQuery.GameType);
+        }
+        if (gamesQuery.RunningOnly)
+        {
+            query = query.Where(g => g.EndTime == null);
+        }
+        if (gamesQuery.Ended)
+        {
+            query = query.Where(g => g.EndTime != null)
+                .OrderBy(g => g.Duration);
+        }
+        else
+        {
+            query = query.OrderByDescending(g => g.StartTime);
+        }
+
+        query = query.Take(MaxGamesReturned);
+
+        return await query.ToListAsync(cancellationToken);
     }
 
-    public Task<IEnumerable<Game>> GetGamesAsync(GamesQuery gamesQuery, CancellationToken cancellationToken = default)
+    public async Task<Game> UpdateGameAsync(Game game, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<Game> UpdateGameAsync(Game game, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+        Games.Update(game);
+        await SaveChangesAsync(cancellationToken);
+        return game;
     }
 }
