@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.Cosmos" Version="8.1.0" />
     <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
@@ -21,6 +22,7 @@
     <ProjectReference Include="..\Codebreaker.GameAPIs.Models\Codebreaker.GameAPIs.Models.csproj" />
     <ProjectReference Include="..\Codebreaker.ServiceDefaults\Codebreaker.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Codebreaker.Data.SqlServer\Codebreaker.Data.SqlServer.csproj" />
+    <ProjectReference Include="..\Codebreaker.Data.Cosmos\Codebreaker.Data.Cosmos.csproj" />
   </ItemGroup>
 
 </Project>

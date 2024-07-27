@@ -1,3 +1,4 @@
+using Codebreaker.Data.Cosmos;
 using Codebreaker.Data.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,24 @@ public static class ApplicationServices
             builder.EnrichSqlServerDbContext<GamesSqlServerContext>();
         }
 
+        static void ConfigureCosmos(IHostApplicationBuilder builder)
+        {
+            builder.Services.AddDbContext<IGamesRepository, GamesCosmosContext>(options =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("codebreakercosmos")
+                    ?? throw new InvalidOperationException("Could not read Cosmos connection string");
+                options.UseCosmos(connectionString, "codebreaker", cosmosOptions =>
+                {
+                });
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            });
+
+            builder.EnrichCosmosDbContext<GamesCosmosContext>(settings =>
+            {
+
+            });
+        }
+
         static void ConfigureInMemory(IHostApplicationBuilder builder)
         {
             builder.Services.AddSingleton<IGamesRepository, GamesMemoryRepository>();
@@ -29,6 +48,9 @@ public static class ApplicationServices
         string? dataStore = builder.Configuration.GetValue<string>("DataStore");
         switch (dataStore)
         {
+            case "Cosmos":
+                ConfigureCosmos(builder);
+                break;
             case "SqlServer":
                 ConfigureSqlServer(builder);
                 break;
@@ -62,6 +84,23 @@ public static class ApplicationServices
                 throw;
             }
         }
-
+        else if (dataStore == "Cosmos")
+        {
+            try
+            {
+                using var scope = app.Services.CreateScope();
+                var repo = scope.ServiceProvider.GetRequiredService<IGamesRepository>();
+                if (repo is GamesCosmosContext context)
+                {
+                    bool created = await context.Database.EnsureCreatedAsync();
+                    app.Logger.LogInformation("Cosmos database created: {created}", created);
+                }
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "Error updating database");
+                throw;
+            }
+        }
     }
 }

@@ -15,5 +15,13 @@ if (dataStore == "SqlServer")
     gameApis
         .WithReference(sqlServer);
 }
+else if (dataStore == "Cosmos")
+{
+    var cosmos = builder.AddAzureCosmosDB("codebreakercosmos")
+       .AddDatabase("codebreaker");
+
+    gameApis
+        .WithReference(cosmos);
+}
 
 builder.Build().Run();
