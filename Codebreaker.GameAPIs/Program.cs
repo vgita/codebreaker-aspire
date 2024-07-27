@@ -1,7 +1,9 @@
+using Codebreaker.GameAPIs;
 using Codebreaker.GameAPIs.Endpoints;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.AddServiceDefaults();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -26,7 +28,8 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-builder.Services.AddSingleton<IGamesRepository, GamesMemoryRepository>();
+builder.AddApplicationServices();
+
 builder.Services.AddScoped<IGamesService, GamesService>();
 
 var app = builder.Build();
@@ -38,6 +41,8 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v3/swagger.json", "v3");
 });
 
+await app.CreateOrUpdateDatabaseAsync();
 
 app.MapGameEndpoints();
+
 app.Run();

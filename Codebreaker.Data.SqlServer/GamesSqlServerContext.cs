@@ -1,7 +1,6 @@
 namespace Codebreaker.Data.SqlServer;
 
-public class GamesSqlServerContext(DbContextOptions<GamesSqlServerContext> options)
-: DbContext(options), IGamesRepository
+public class GamesSqlServerContext(DbContextOptions<GamesSqlServerContext> options) : DbContext(options), IGamesRepository
 {
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

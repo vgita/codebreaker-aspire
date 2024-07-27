@@ -39,4 +39,29 @@ public static class ApplicationServices
 
         builder.Services.AddScoped<IGamesService, GamesService>();
     }
+
+    public static async Task CreateOrUpdateDatabaseAsync(this WebApplication app)
+    {
+        var dataStore = app.Configuration["DataStore"] ?? "InMemory";
+        if (dataStore == "SqlServer")
+        {
+            try
+            {
+                using var scope = app.Services.CreateScope();
+
+                var repo = scope.ServiceProvider.GetRequiredService<IGamesRepository>();
+                if (repo is GamesSqlServerContext context)
+                {
+                    await context.Database.MigrateAsync();
+                    app.Logger.LogInformation("SQL Server database updated");
+                }
+            }
+            catch (Exception ex)
+            {
+                app.Logger.LogError(ex, "Error updating database");
+                throw;
+            }
+        }
+
+    }
 }
