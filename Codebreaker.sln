@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codebreaker.Data.Cosmos", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codebreaker.GameApis.Client", "Codebreaker.GameApis.Client\Codebreaker.GameApis.Client.csproj", "{A9D05ED5-4092-429F-A0E7-4F389A812D68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Codebreaker.Console", "Codebreaker.Console\Codebreaker.Console.csproj", "{27CE6ABB-A0AD-4D7F-80C8-5F1CCB0128BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +62,9 @@ Global
 		{A9D05ED5-4092-429F-A0E7-4F389A812D68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9D05ED5-4092-429F-A0E7-4F389A812D68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9D05ED5-4092-429F-A0E7-4F389A812D68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27CE6ABB-A0AD-4D7F-80C8-5F1CCB0128BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27CE6ABB-A0AD-4D7F-80C8-5F1CCB0128BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27CE6ABB-A0AD-4D7F-80C8-5F1CCB0128BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27CE6ABB-A0AD-4D7F-80C8-5F1CCB0128BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

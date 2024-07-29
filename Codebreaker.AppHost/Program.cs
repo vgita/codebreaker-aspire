@@ -8,8 +8,9 @@ var gameApis = builder.AddProject<Projects.Codebreaker_GameAPIs>("gameapis")
 
 if (dataStore == "SqlServer")
 {
-    var sqlServer = builder.AddSqlServer("sql")
-        .WithDataVolume()
+    var sqlPassword = builder.AddParameter("sql-password", secret: true);
+
+    var sqlServer = builder.AddSqlServer("sql", sqlPassword)
         .AddDatabase("CodebreakerSql", "codebreaker");
 
     gameApis
