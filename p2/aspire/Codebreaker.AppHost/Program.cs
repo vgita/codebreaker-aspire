@@ -1,11 +1,14 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-// TODO 1: get the SQL Server password from user secrets
+var sqlPassword = builder.AddParameter("SqlPassword", secret: true);
+var sqlServer = builder.AddSqlServer("sql", sqlPassword)
+.WithDataVolume("codebreaker-sql-data", isReadOnly: false)
+.AddDatabase("CodebreakerSql");
 
-// TODO 2: configure a SQL Server container with a named volume
+var gameAPIs = builder.AddProject<Projects.Codebreaker_GameAPIs>("gamesapis")
+.WithReference(sqlServer);
 
-// TODO 3: configure the Game APIs project using the SQL Server container
-
-// TODO 5: configure the Bot project using the Games API service
+builder.AddProject<Projects.CodeBreaker_Bot>("bot")
+    .WithReference(gameAPIs);
 
 builder.Build().Run();
