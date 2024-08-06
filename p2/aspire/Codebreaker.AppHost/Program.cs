@@ -1,14 +1,21 @@
+
 var builder = DistributedApplication.CreateBuilder(args);
 
-var sqlPassword = builder.AddParameter("SqlPassword", secret: true);
-var sqlServer = builder.AddSqlServer("sql", sqlPassword)
-.WithDataVolume("codebreaker-sql-data", isReadOnly: false)
-.AddDatabase("CodebreakerSql");
+string dataStore = builder.Configuration["DataStore"] ?? "InMemory";
 
-var gameAPIs = builder.AddProject<Projects.Codebreaker_GameAPIs>("gamesapis")
-.WithReference(sqlServer);
+var cosmos = builder.AddAzureCosmosDB("codebreakercosmos")
+    .AddDatabase("codebreaker");
+
+var gameAPIs = builder.AddProject<Projects.Codebreaker_GameAPIs>("gameapis")
+    .WithExternalHttpEndpoints()
+    .WithReference(cosmos)
+    .WithEnvironment("DataStore", dataStore);
 
 builder.AddProject<Projects.CodeBreaker_Bot>("bot")
+    .WithExternalHttpEndpoints()
     .WithReference(gameAPIs);
+
+builder.AddProject<Projects.Codebreaker_CosmosCreate>("createcosmos")
+    .WithReference(cosmos);
 
 builder.Build().Run();

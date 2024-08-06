@@ -6,7 +6,7 @@ public static partial class ApiModelExtensions
         where T : IParsable<T> =>
         guesses.Select(guess => T.Parse(guess, default)).ToArray();
 
-    public static CreateGameResponse ToCreateGameResponse(this Game game) => 
+    public static CreateGameResponse ToCreateGameResponse(this Game game) =>
         new(game.Id, Enum.Parse<GameType>(game.GameType), game.PlayerName, game.NumberCodes, game.MaxMoves)
         {
             FieldValues = game.FieldValues
