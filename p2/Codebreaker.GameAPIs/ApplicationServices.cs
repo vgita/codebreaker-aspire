@@ -62,7 +62,6 @@ public static class ApplicationServices
 
         if (dataStore == "SqlServer")
         {
-
             try
             {
                 using var scope = app.Services.CreateScope();

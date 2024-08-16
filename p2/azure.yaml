@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: p2
+name: ch08
 services:  
   app:
     language: dotnet
-    project: ./Codebreaker.AppHost/Codebreaker.AppHost.csproj
+    project: .\Codebreaker.AppHost\Codebreaker.AppHost.csproj
     host: containerapp
