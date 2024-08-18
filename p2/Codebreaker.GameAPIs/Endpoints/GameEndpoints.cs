@@ -1,7 +1,10 @@
 ﻿using Codebreaker.GameAPIs.Errors;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http.HttpResults;
+
+using System.Security.Claims;
 
 namespace Codebreaker.GameAPIs.Endpoints;
 
@@ -12,7 +15,7 @@ public static class GameEndpoints
         var group = routes.MapGroup("/games")
             .WithTags("Games API");
 
-        group.MapPost("/", async Task<Results<Created<CreateGameResponse>, BadRequest<GameError>>> (
+        group.MapPost("/", async Task<Results<Created<CreateGameResponse>, BadRequest<GameError>, UnauthorizedHttpResult>> (
             CreateGameRequest request,
             IGamesService gameService,
             HttpContext context,
@@ -39,7 +42,7 @@ public static class GameEndpoints
         });
 
         // Update the game resource with a move
-        group.MapPatch("/{id:guid}", async Task<Results<Ok<UpdateGameResponse>, NotFound, BadRequest<GameError>>> (
+        group.MapPatch("/{id:guid}", async Task<Results<Ok<UpdateGameResponse>, NotFound, BadRequest<GameError>, UnauthorizedHttpResult>> (
             Guid id,
             UpdateGameRequest request,
             IGamesService gameService,
@@ -134,6 +137,7 @@ public static class GameEndpoints
                     var games = await gameService.GetGamesAsync(query, cancellationToken);
                     return TypedResults.Ok(games);
                 })
+                .RequireAuthorization("queryPolicy")
                 .WithName("GetGames")
                 .WithSummary("Get games based on query parameters")
                 .WithOpenApi(op =>
@@ -147,7 +151,7 @@ public static class GameEndpoints
 
         group.MapDelete("/{id:guid}", async (
             Guid id,
-            IGamesService gameService, 
+            IGamesService gameService,
             CancellationToken cancellationToken
         ) =>
         {
@@ -155,6 +159,7 @@ public static class GameEndpoints
 
             return TypedResults.NoContent();
         })
+        .RequireAuthorization("playPolicy")
         .WithName("DeleteGame")
         .WithSummary("Deletes the game with the given id")
         .WithDescription("Deletes a game from the database")

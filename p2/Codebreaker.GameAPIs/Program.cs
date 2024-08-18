@@ -1,34 +1,11 @@
-using Azure.Identity;
 using Codebreaker.GameAPIs;
 
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddAuthorization();
 
 builder.AddServiceDefaults();
-
-//builder.Configuration.AddAzureAppConfiguration(appConfigOptions =>
-//{
-//#if DEBUG
-//    DefaultAzureCredential credential = new();
-//#else
-//    string managedIdentityClientId = builder.Configuration["AZURE_CLIENT_ID"] ?? string.Empty;
-//    DefaultAzureCredentialOptions credentialOptions = new()
-//    {
-//        ManagedIdentityClientId = managedIdentityClientId,
-//        ExcludeEnvironmentCredential = true,
-//        ExcludeWorkloadIdentityCredential = true
-//    };
-//    DefaultAzureCredential credential = new(credentialOptions);
-//#endif
-//    string appConfigUrl = builder.Configuration.GetConnectionString("codebreakerconfig") ?? throw new InvalidOperationException("could not read codebreakerconfig");
-//    appConfigOptions.Connect(new Uri(appConfigUrl), credential)
-//        .Select("gameapis")
-//        .ConfigureKeyVault(keyVaultOptions =>
-//        {
-//            keyVaultOptions.SetCredential(credential);
-//        });
-//});
 
 // Swagger/EndpointDocumentation
 builder.Services.AddEndpointsApiExplorer();
@@ -58,6 +35,8 @@ builder.Services.AddSwaggerGen(options =>
 builder.AddApplicationServices();
 
 var app = builder.Build();
+
+app.UseAuthorization();
 
 app.MapDefaultEndpoints();
 
