@@ -2,11 +2,11 @@ name: Codebreaker Deploy
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'p2/**'
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'p2/**'
 
 permissions:
   id-token: write
