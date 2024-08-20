@@ -6,6 +6,76 @@ namespace Codebreaker.Analyzers.Tests.Analyzers;
 
 public class ColorGame6x4AnalyzerTests
 {
+  [Fact]
+  public void GetResult_Should_ReturnThreeWhite()
+  {
+    ColorResult expectedKeyPegs = new(0, 3);
+    ColorResult? resultKeyPegs = AnalyzeGame(
+        [Green, Yellow, Green, Black],
+        [Yellow, Green, Black, Blue]
+    );
+
+    Assert.Equal(expectedKeyPegs, resultKeyPegs);
+  }
+
+  [InlineData(1, 2, Red, Yellow, Red, Blue)]
+  [InlineData(2, 0, White, White, Blue, Red)]
+  [Theory]
+  public void GetResult_ShouldReturn_InlineDataResults(int expectedBlack, int expectedWhite, params string[] guessValues)
+  {
+    string[] code = [Red, Green, Blue, Red];
+    ColorResult expectedKeyPegs = new(expectedBlack, expectedWhite);
+    ColorResult resultKeyPegs = AnalyzeGame(code, guessValues);
+    Assert.Equal(expectedKeyPegs, resultKeyPegs);
+  }
+
+  [Theory]
+  [ClassData(typeof(TestData6x4))]
+  public void GetResult_ShouldReturn_UsingClassData(string[] code, string[] guess, ColorResult expectedKeyPegs)
+  {
+    ColorResult actualKeyPegs = AnalyzeGame(code, guess);
+    Assert.Equal(expectedKeyPegs, actualKeyPegs);
+  }
+
+  [Fact]
+  public void GetResult_Should_ThrowOnInvalidGuessCount()
+  {
+    Assert.Throws<ArgumentException>(() =>
+        AnalyzeGame(
+            ["Black", "Black", "Black", "Black"],
+            ["Black"]
+        ));
+  }
+
+  [Fact]
+  public void GetResult_Should_ThrowOnInvalidGuessValues()
+  {
+    Assert.Throws<ArgumentException>(() =>
+        AnalyzeGame(
+            ["Black", "Black", "Black", "Black"],
+            ["Black", "Der", "Blue", "Yellow"]      // "Der" is the wrong value
+        ));
+  }
+
+  [Fact]
+  public void GetResult_Should_ThrowOnInvalidMoveNumber()
+  {
+    Assert.Throws<ArgumentException>(() =>
+        AnalyzeGame(
+            [Green, Yellow, Green, Black],
+            [Yellow, Green, Black, Blue], moveNumber: 2));
+  }
+
+  [Fact]
+  public void GetResult_Should_NotIncrementMoveNumberOnInvalidMove()
+  {
+    IGame game = AnalyzeGameCatchingException(
+        [Green, Yellow, Green, Black],
+        [Yellow, Green, Black, Blue], moveNumber: 2);
+
+    Assert.Equal(0, game?.LastMoveNumber);
+  }
+
   private static MockColorGame CreateGame(string[] codes) => new()
   {
     GameType = GameTypes.Game6x4,

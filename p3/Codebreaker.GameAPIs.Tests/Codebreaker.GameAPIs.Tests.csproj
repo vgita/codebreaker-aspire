@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Codebreaker.GameAPIs.Analyzers\Codebreaker.Analyzers.csproj" />
+    <ProjectReference Include="..\Codebreaker.GameAPIs\Codebreaker.GameAPIs.csproj" />
   </ItemGroup>
 
 </Project>
