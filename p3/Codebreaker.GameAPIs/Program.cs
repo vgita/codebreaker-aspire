@@ -1,10 +1,12 @@
-using Codebreaker.Data.SqlServer;
-using Codebreaker.GameAPIs;
-
-using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddMetrics();
+
+builder.Services.AddSingleton<GamesMetrics>();
+
+builder.Services.AddKeyedSingleton("Codebreaker.GameAPIs", (services, _) => new ActivitySource("Codebreaker.GameAPIs", "1.0.0"));  
 
 builder.AddServiceDefaults();
 
@@ -45,23 +47,7 @@ app.UseSwaggerUI(options =>
     options.SwaggerEndpoint("/swagger/v3/swagger.json", "v3");
 });
 
-if (builder.Configuration["DataStore"] == "SqlServer" && builder.Environment.IsDevelopment())
-{
-    try
-    {
-        using var scope = app.Services.CreateScope();
-        var repo = scope.ServiceProvider.GetRequiredService<GamesSqlServerContext>();
-        if (repo is GamesSqlServerContext context)
-        {
-            await context.Database.MigrateAsync();
-            app.Logger.LogInformation("Database updated");
-        }
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "Error updating database");
-    }
-}
+await app.CreateOrUpdateDatabaseAsync();
 
 app.MapGameEndpoints();
 

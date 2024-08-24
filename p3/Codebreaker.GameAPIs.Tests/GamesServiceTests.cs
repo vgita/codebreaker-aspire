@@ -1,3 +1,8 @@
+using Codebreaker.GameAPIs.Infrastructure;
+using Microsoft.Extensions.Logging.Abstractions;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
+
 namespace Codebreaker.GameAPIs.Tests;
 
 public class GamesServiceTests
@@ -37,10 +42,20 @@ public class GamesServiceTests
         _gamesRepositoryMock.Setup(repo => repo.AddMoveAsync(_running6x4Game, It.IsAny<Move>(), CancellationToken.None));
     }
 
+    //[Fact]
+    //public async Task StartGame_Should_()
+    //{
+    //    GamesService gamesService = GetGamesService();
+    //    await Assert.ThrowsAsync<CodebreakerException>(async () =>
+    //    {
+    //        await gamesService.StartGameAsync("Game6x4", "Test", CancellationToken.None);
+    //    });
+    //}
+
     [Fact]
     public async Task SetMoveAsync_Should_ThrowWithEndedGame()
     {
-        GamesService gamesService = new(_gamesRepositoryMock.Object);
+        GamesService gamesService = GetGamesService();
         await Assert.ThrowsAsync<CodebreakerException>(async () =>
         {
             await gamesService.SetMoveAsync(_endedGameId, "Game6x4", ["Red", "Green", "Blue", "Yellow"], 1, CancellationToken.None);
@@ -52,7 +67,7 @@ public class GamesServiceTests
     [Fact]
     public async Task SetMoveAsync_Should_ThrowWithUnexpectedGameType()
     {
-        GamesService gamesService = new(_gamesRepositoryMock.Object);
+        GamesService gamesService = GetGamesService();
         await Assert.ThrowsAsync<CodebreakerException>(async () =>
         {
             await gamesService.SetMoveAsync(_running6x4GameId, "Game8x5", ["Red", "Green", "Blue", "Yellow"], 1, CancellationToken.None);
@@ -64,7 +79,7 @@ public class GamesServiceTests
     [Fact]
     public async Task SetMoveAsync_Should_ThrowWithNotFoundGame()
     {
-        GamesService gamesService = new(_gamesRepositoryMock.Object);
+        GamesService gamesService = GetGamesService();
         await Assert.ThrowsAsync<CodebreakerException>(async () =>
         {
             await gamesService.SetMoveAsync(_notFoundGameId, "Game6x4", ["Red", "Green", "Blue", "Yellow"], 1, CancellationToken.None);
@@ -77,7 +92,7 @@ public class GamesServiceTests
     public async Task GetGameAsync_Should_ReturnAGame()
     {
         // Arrange
-        GamesService gamesService = new(_gamesRepositoryMock.Object);
+        GamesService gamesService = GetGamesService();
 
         // Act
         Game? game = await gamesService.GetGameAsync(_running6x4GameId, CancellationToken.None);
@@ -92,7 +107,7 @@ public class GamesServiceTests
     public async Task SetMoveAsync_Should_UpdateGameAndAddMove()
     {
         // Arrange
-        GamesService gamesService = new(_gamesRepositoryMock.Object);
+        GamesService gamesService = GetGamesService();
 
         // Act
         var result = await gamesService.SetMoveAsync(_running6x4GameId, "Game6x4", ["Red", "Green", "Blue", "Yellow"], 1, CancellationToken.None);
@@ -103,5 +118,12 @@ public class GamesServiceTests
 
         _gamesRepositoryMock.Verify(repo => repo.GetGameAsync(_running6x4GameId, CancellationToken.None), Times.Once);
         _gamesRepositoryMock.Verify(repo => repo.AddMoveAsync(_running6x4Game, It.IsAny<Move>(), CancellationToken.None), Times.Once);
+    }
+
+    private GamesService GetGamesService()
+    {
+        IMeterFactory meterFactory = new TestMeterFactory();
+        GamesMetrics metrics = new(meterFactory);
+        return new GamesService(_gamesRepositoryMock.Object, NullLogger<GamesService>.Instance, metrics, new ActivitySource("TestSource"));
     }
 }
