@@ -85,4 +85,15 @@ public static partial class Log
         }
     }
 
+    [LoggerMessage(
+        EventId = 4006,
+        Level = LogLevel.Information,
+        Message = "Start cleaning up old games")]
+    public static partial void StartCleanupGames(this ILogger logger);
+
+    [LoggerMessage(
+        EventId = 4007,
+        Level = LogLevel.Information,
+        Message = "Cleaned up {NumberGames} games")]
+    public static partial void CleanedUpGames(this ILogger logger, int numberGames);
 }

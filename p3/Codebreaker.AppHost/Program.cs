@@ -1,7 +1,14 @@
+using Codebreaker.AppHost;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 string dataStore = builder.Configuration["DataStore"] ?? "InMemory";
 string startupMode = builder.Configuration["STARTUP_MODE"] ?? "Azure";  // specified with environment variables in the launch profile
+
+var redis = builder.AddRedis("redis")
+    .WithRedisCommander()
+    .PublishAsContainer();
+    
 
 if (startupMode == "OnPremises")
 {
@@ -15,12 +22,15 @@ if (startupMode == "OnPremises")
         .WithBindMount("../grafana/dashboards", "/var/lib/grafana/dashboards", isReadOnly: true)
         .WithHttpEndpoint(targetPort: 3000, name: "grafana-http");
 
+    builder.AddUserSecretsForPrometheusEnvironment();
+
     var prometheus = builder.AddContainer("prometheus", "prom/prometheus")
        .WithBindMount("../prometheus", "/etc/prometheus", isReadOnly: true)
        .WithHttpEndpoint(/* This port is fixed as it's referenced from the Grafana config */ port: 9090, targetPort: 9090);
 
     var gameAPIs = builder.AddProject<Projects.Codebreaker_GameAPIs>("gameapis")
         .WithReference(sqlServer)
+        .WithReference(redis)
         .WithEnvironment("DataStore", dataStore)
         .WithEnvironment("GRAFANA_URL", grafana.GetEndpoint("grafana-http"))
         .WithEnvironment("StartupMode", startupMode);
@@ -39,9 +49,11 @@ else
 
     var gameAPIs = builder.AddProject<Projects.Codebreaker_GameAPIs>("gameapis")
         .WithReference(cosmos)
+        .WithReference(redis)
         .WithReference(appInsights)
         .WithEnvironment("DataStore", dataStore)
-        .WithEnvironment("StartupMode", startupMode);
+        .WithEnvironment("StartupMode", startupMode)
+        .WithReplicas(2);
 
     builder.AddProject<Projects.CodeBreaker_Bot>("bot")
         .WithReference(gameAPIs)
