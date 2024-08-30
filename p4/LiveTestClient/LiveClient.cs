@@ -1,5 +1,4 @@
 ﻿
-
 namespace LiveTestClient;
 
 internal class LiveClient(IOptions<LiveClientOptions> options, ILogger<LiveClient> logger) : IAsyncDisposable
@@ -32,12 +31,12 @@ internal class LiveClient(IOptions<LiveClientOptions> options, ILogger<LiveClien
         }
         catch (HttpRequestException ex)
         {
-            logger.LogError(ex, ex.Message);
+            logger.LogError(ex, "Error: {Error}", ex.Message);
             throw;
         }
         catch (OperationCanceledException ex)
         {
-            logger.LogWarning(message: ex.Message);
+            logger.LogWarning("Error: {Error}", ex.Message);
         }
     }
 
@@ -51,12 +50,12 @@ internal class LiveClient(IOptions<LiveClientOptions> options, ILogger<LiveClien
         }
         catch (HubException ex)
         {
-            logger.LogError(ex, ex.Message);
+            logger.LogError(ex, "Error: {Error}", ex.Message);
             throw;
         }
         catch (OperationCanceledException ex)
         {
-            logger.LogWarning(ex.Message);
+            logger.LogWarning("Error: {Error}", ex.Message);
         }
     }
 
@@ -64,6 +63,7 @@ internal class LiveClient(IOptions<LiveClientOptions> options, ILogger<LiveClien
     {
         if (_hubConnection is not null)
         {
+            await _hubConnection.InvokeAsync("UnsubscribeFromGameCompletions");
             await _hubConnection.DisposeAsync();
         }
     }

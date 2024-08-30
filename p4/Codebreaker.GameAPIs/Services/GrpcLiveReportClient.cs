@@ -6,14 +6,14 @@ using System.Net.Sockets;
 
 namespace Codebreaker.GameAPIs.Services;
 
-public class GrpcLiveReportClient(ReportGame.ReportGameClient client, ILogger<LiveReportClient> logger) : ILiveReportClient
+public class GrpcLiveReportClient(ReportGame.ReportGameClient client, ILogger<LiveReportClient> logger) : IGameReport
 {
     public async Task ReportGameEndedAsync(GameSummary gameSummary, CancellationToken cancellationToken = default)
     {
         try
         {
             ReportGameCompletedRequest request = gameSummary.ToReportGameCompletedRequest();
-            await client.ReportGameCompletedAsync(request);
+            await client.ReportGameCompletedAsync(request, cancellationToken: cancellationToken);
         }
         catch (Exception ex) when (ex is RpcException or SocketException)
         {

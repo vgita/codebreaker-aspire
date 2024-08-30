@@ -1,8 +1,7 @@
-﻿using Codebreaker.Grpc;
+﻿using Codebreaker.GameAPIs.Services;
+using Codebreaker.Grpc;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.ServiceDiscovery;
 
 using System.Diagnostics;
 
@@ -12,7 +11,6 @@ public static class ApplicationServices
 {
     public static void AddApplicationTelemetry(this IHostApplicationBuilder builder)
     {
-        string? mode = builder.Configuration["StartupMode"];
         builder.Services.AddMetrics();
 
         builder.Services.AddOpenTelemetry().WithMetrics(m => m.AddMeter(GamesMetrics.MeterName));
@@ -43,8 +41,6 @@ public static class ApplicationServices
 
             builder.EnrichSqlServerDbContext<GamesSqlServerContext>(settings =>
             {
-                settings.DisableTracing = false;
-                settings.DisableHealthChecks = false;
             });
         }
 
@@ -59,7 +55,6 @@ public static class ApplicationServices
             });
             builder.EnrichCosmosDbContext<GamesCosmosContext>(settings =>
             {
-                settings.DisableTracing = false;
             });
         }
 
@@ -92,15 +87,33 @@ public static class ApplicationServices
 
         builder.Services.AddScoped<IGamesService, GamesService>();
 
+        string? mode = builder.Configuration["StartupMode"];
+        if (mode == "OnPremises")
+        {
+            builder.AddKafkaProducer<string, string>("kafkamessaging", settings =>
+            {
+                settings.Config.AllowAutoCreateTopics = true;
+            });
+
+            builder.Services.AddSingleton<IGameReport, KafkaGameReportProducer>();
+        }
+        else
+        {
+            builder.Services.AddScoped<IGameReport, EventHubReportProducer>();
+
+            builder.AddAzureEventHubProducerClient("codebreakerevents", settings =>
+            {
+                settings.EventHubName = "games";
+            });
+        }
+
         builder.Services.AddGrpc();
 
-        builder.Services.AddSingleton<ILiveReportClient, GrpcLiveReportClient>()
-
+        builder.Services.AddSingleton<IGameReport, GrpcLiveReportClient>()
             .AddGrpcClient<ReportGame.ReportGameClient>(client =>
             {
                 client.Address = new Uri("https://live");
             });
-
         builder.AddRedisDistributedCache("redis");
     }
 
