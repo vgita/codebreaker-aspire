@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using Codebreaker.Grpc;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.ServiceDiscovery;
+
 using System.Diagnostics;
 
 namespace Codebreaker.GameAPIs;
@@ -39,7 +44,7 @@ public static class ApplicationServices
             builder.EnrichSqlServerDbContext<GamesSqlServerContext>(settings =>
             {
                 settings.DisableTracing = false;
-                settings.DisableTracing = false;
+                settings.DisableHealthChecks = false;
             });
         }
 
@@ -86,10 +91,15 @@ public static class ApplicationServices
         }
 
         builder.Services.AddScoped<IGamesService, GamesService>();
-        builder.Services.AddHttpClient<ILiveReportClient, LiveReportClient>(client =>
-        {
-            client.BaseAddress = new Uri("https+http://live");
-        });
+
+        builder.Services.AddGrpc();
+
+        builder.Services.AddSingleton<ILiveReportClient, GrpcLiveReportClient>()
+
+            .AddGrpcClient<ReportGame.ReportGameClient>(client =>
+            {
+                client.Address = new Uri("https://live");
+            });
 
         builder.AddRedisDistributedCache("redis");
     }
@@ -107,7 +117,10 @@ public static class ApplicationServices
             try
             {
                 using var scope = app.Services.CreateScope();
-                var repo = scope.ServiceProvider.GetRequiredService<IGamesRepository>();
+                var repo = scope.ServiceProvider.GetRequiredService<GamesSqlServerContext>();
+
+                // TODO: update with .NET Aspire Preview 4
+                // var repo = scope.ServiceProvider.GetRequiredService<IGamesRepository>();
                 if (repo is GamesSqlServerContext context)
                 {
                     await context.Database.MigrateAsync();
@@ -129,7 +142,9 @@ public static class ApplicationServices
             try
             {
                 using var scope = app.Services.CreateScope();
-                var repo = scope.ServiceProvider.GetRequiredService<IGamesRepository>();
+                // TODO: update with .NET Aspire Preview 4
+                var repo = scope.ServiceProvider.GetRequiredService<GamesCosmosContext>();
+                //                var repo = scope.ServiceProvider.GetRequiredService<IGamesRepository>();
                 if (repo is GamesCosmosContext context)
                 {
                     bool created = await context.Database.EnsureCreatedAsync();

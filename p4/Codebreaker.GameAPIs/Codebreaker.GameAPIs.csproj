@@ -9,12 +9,18 @@
 		<UserSecretsId>fd1d3a37-908b-4899-ac69-4a1f3942d57b</UserSecretsId>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<ContainerRegistry>acrokccxl67xgpc6.azurecr.io</ContainerRegistry>
+		<ContainerRepository>codebgreakergames</ContainerRepository>
+		<ContainerImageTags>4.6.3;latest</ContainerImageTags>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<InternalsVisibleTo Include="Codebreaker.GameAPIs.Tests" />
 		<InternalsVisibleTo Include="Codebreaker.GameAPIs.IntegrationTests" />
 	</ItemGroup>
 
-	<ItemGroup>
+    <ItemGroup>
 		<PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="8.0.1" />
 		<PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.1" />
 		<PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.Cosmos" Version="8.0.1" />
@@ -23,6 +29,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="CNinnovation.Codebreaker.BackendModels" Version="3.7.0" />
+		<PackageReference Include="Grpc.AspNetCore" Version="2.63.0" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5" />
 		<PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="8.0.5">
 		  <PrivateAssets>all</PrivateAssets>
@@ -36,6 +43,15 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Codebreaker.ServiceDefaults\Codebreaker.ServiceDefaults.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Protos\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Protobuf Include="..\Codebreaker.Live\Protos\LiveGame.proto" GrpcServices="Client" />
+	  <Protobuf Include=".\Protos\GameService.proto" GrpcServices="Server" />
 	</ItemGroup>
 
 </Project>
